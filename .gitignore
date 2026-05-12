@@ -5,3 +5,8 @@ __pycache__/
 .env
 *.session
 *.session-journal
+.coverage
+*.egg-info/
+.venv/
+dist/
+build/
