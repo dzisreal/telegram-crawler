@@ -34,6 +34,18 @@ def get_session_path() -> Path:
     return get_session_dir() / "session.session"
 
 
+def get_log_dir() -> Path:
+    path = os.environ.get("LOG_DIR")
+    if path:
+        return Path(path)
+    return _DEFAULT_BASE / "logs"
+
+
+def get_log_level() -> str:
+    return os.environ.get("LOG_LEVEL", "INFO").upper()
+
+
 def ensure_dirs() -> None:
     get_db_path().parent.mkdir(parents=True, exist_ok=True)
     get_session_dir().mkdir(parents=True, exist_ok=True)
+    get_log_dir().mkdir(parents=True, exist_ok=True)

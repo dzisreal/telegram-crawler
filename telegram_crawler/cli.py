@@ -1,11 +1,13 @@
 import argparse
 import asyncio
+import logging
 from datetime import datetime
 
 from rich.console import Console
 from rich.table import Table
 
 from telegram_crawler.client import login
+from telegram_crawler.config import ensure_dirs, get_log_dir, get_log_level
 from telegram_crawler.crawler import crawl_channel
 from telegram_crawler.exporter import export_csv, export_json
 from telegram_crawler.storage import Storage
@@ -107,7 +109,26 @@ async def cmd_stats(args: argparse.Namespace) -> None:
     await storage.close()
 
 
+def _setup_logging() -> None:
+    ensure_dirs()
+    log_dir = get_log_dir()
+    log_level = get_log_level()
+    today = datetime.now().strftime("%Y-%m-%d")
+    log_file = log_dir / f"telegram-crawler-{today}.log"
+
+    logging.basicConfig(
+        level=getattr(logging, log_level, logging.INFO),
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        handlers=[
+            logging.FileHandler(log_file, encoding="utf-8"),
+            logging.StreamHandler(),
+        ],
+    )
+
+
 def main() -> None:
+    _setup_logging()
     parser = argparse.ArgumentParser(prog="telegram-crawler", description="Crawl public Telegram channels")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
