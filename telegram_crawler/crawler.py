@@ -64,11 +64,12 @@ async def crawl_channel(
     date_to: datetime | None = None,
 ) -> int:
     client = create_client()
-    await client.connect()
+    await client.start()
 
     try:
         if not await client.is_user_authorized():
             logger.error("Not authorized. Run 'telegram-crawler login' first.")
+            await client.disconnect()
             return 0
 
         rate_limiter = TokenBucketRateLimiter()
@@ -95,12 +96,13 @@ async def crawl_channel(
 
         kwargs = {}
         if is_incremental:
+            # Incremental: get messages newer than last checkpoint
             kwargs["min_id"] = last_id
             kwargs["reverse"] = True
         else:
+            # Full crawl: get messages from newest to oldest within date range
             if date_to:
                 kwargs["offset_date"] = date_to
-            kwargs["reverse"] = True
 
         try:
             async for msg in client.iter_messages(entity, **kwargs):

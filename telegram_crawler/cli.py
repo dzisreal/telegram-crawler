@@ -16,7 +16,8 @@ console = Console()
 
 
 def parse_date(date_str: str) -> datetime:
-    return datetime.strptime(date_str, "%Y-%m-%d")
+    from datetime import timezone
+    return datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
 
 async def cmd_login(args: argparse.Namespace) -> None:
